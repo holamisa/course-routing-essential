@@ -2,6 +2,7 @@ import { useLoaderData, useParams, json } from 'react-router-dom';
 
 import EventItem from '../components/EventItem';
 
+// router에서 loader 호출 시 자동으로 request, params object를 보내준다.
 export async function loader({ request, params }) {
   // request.url
   const { id } = params;
