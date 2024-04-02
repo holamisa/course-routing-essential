@@ -14,7 +14,7 @@ export async function loader() {
     // throw new Response(JSON.stringify({ message: 'Could not fetch events.' }), {
     //   status: 500,
     // });
-    // new Response 수작업하는것 보다 더 간소화된 방식
+    // json은 new Response 수작업하는것 보다 더 간소화된 방식
     throw json(
       { message: 'Could not fetch events.' },
       {
