@@ -1,8 +1,53 @@
-import { Form, useNavigate, useNavigation } from 'react-router-dom';
+import {
+  Form,
+  useNavigate,
+  useNavigation,
+  useActionData,
+  json,
+  redirect,
+} from 'react-router-dom';
 
 import classes from './EventForm.module.css';
 
+export async function action({ request, params }) {
+  const { method } = request;
+  const data = await request.formData();
+
+  const eventData = {
+    title: data.get('title'),
+    image: data.get('image'),
+    date: data.get('date'),
+    description: data.get('description'),
+  };
+
+  let url = 'http://localhost:3030/events';
+
+  if (method === 'PATCH') {
+    const { id } = params;
+    url = `http://localhost:3030/events/${id}`;
+  }
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(eventData),
+  });
+
+  if (response.status === 422) {
+    return response;
+  }
+
+  if (!response.ok) {
+    throw json({ message: 'Could not save event.' }, { status: 500 });
+  }
+
+  return redirect('/events');
+}
+
 function EventForm({ method, event }) {
+  const data = useActionData();
   const navigate = useNavigate();
   const navigation = useNavigation();
 
@@ -16,7 +61,14 @@ function EventForm({ method, event }) {
   // router에서 다른 path의 action을 실행하고 싶으면 action 속성 사용하면 된다.
   // <Form method="post" action="/other-path" className={classes.form}>
   return (
-    <Form method="post" className={classes.form}>
+    <Form method={method} className={classes.form}>
+      {data && data.errors && (
+        <ul>
+          {Object.values(data.errors).map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
       <p>
         <label htmlFor="title">
           Title
